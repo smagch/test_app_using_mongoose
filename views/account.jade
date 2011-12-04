@@ -1,0 +1,10 @@
+a you are 
+p #{user.id}
+p #{everyauth.facebook.user.id}
+p #{user.name}
+p #{everyauth.twitter.user.id}
+
+-if(user)
+  each val, key in user
+    li= #{prop} : #{user[prop]}
+
