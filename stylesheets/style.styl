@@ -40,7 +40,7 @@ body, button, input, select, textarea { font-family: sans-serif; color: #222; }
  * No text-shadow: twitter.com/miketaylr/status/12228805301
  * Also: hot pink!
  */
-background-color = #fe57a1
+background-color = #ff00ff
 color = #fff
 
 ::-moz-selection 
@@ -212,48 +212,37 @@ table { border-collapse: collapse; border-spacing: 0; }
 
 body
   text-align center
-  background #000
+  background-color #000
   
+label
+  width 200px
+
 
 #wrapper
   width 920px
   text-align left 
   margin-left auto 
   margin-right auto
-  background #fff
-  padding 20px
-  border-radius(10px)
 
-.css-table
-  width 100%
-  display table
-  .two-column
-    display table-row
-    .cell
-      display table-cell
-      vertical-align top
-      width 50%
-      *
-        width 90%
-  .three-column
-    display table-row
-    .cell
-      display table-cell
-      width 33.33333%
-      *
-        width 90%
-  .four-column
-    display table-row
-    .cell
-      display table-cell
-      width 25%
+
+#content
+  padding 20px
+  background #fff
+  border-radius(30px)
+
+
 
 /* Header
 -----------------------------------------------------------------------------*/
 #header
-  background #F00060
+  h1
+    a
+      text-decoration none      
+    display inline
+    float left
+  
   nav 
-    width 960px
+    //width 960px
     text-align right
     margin-left auto 
     margin-right auto
@@ -276,14 +265,24 @@ body
           &:hover
             background-color #db0d5f 
 
+
+ul#post-list
+  padding 0
+  list-style none
+  li
+    padding 10px
+    margin 10px
+    border-radius(10px)
+    background #999
+
 /* Footer
 -----------------------------------------------------------------------------*/
-#footer
-  color #666
-  border-top 1px solid #ccc
-  padding-top 1.5em
-  ul 
-    list-style none
+// #footer
+//   color #666
+//   border-top 1px solid #ccc
+//   padding-top 1.5em
+//   ul 
+//     list-style none
 
 
 

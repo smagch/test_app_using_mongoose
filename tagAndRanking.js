@@ -1,12 +1,16 @@
-var express = require('express');
-	stylus = require('stylus'),
-//	everyauth = require('everyauth'),
-	mongoose = require('mongoose'),
-	Schema = mongoose.Schema,
-	ObjectId = Schema.ObjectId;
+var express = require('express')
+  , stylus = require('stylus')
+  , mongoose = require('mongoose')
+	, Schema = mongoose.Schema
+	, ObjectId = Schema.ObjectId
+	;
 	
-// TODO 1. first of all, login and create post
-// show posts
+
+// pagenater
+// little bit of design
+
+
+
 // TODO 2. every user can edit tag
 
 // TODO 3. consider view count ranking
@@ -18,16 +22,17 @@ var express = require('express');
 
 // TODO 7. add omment
 
-mongoose.connect('mongodb://localhost/testtest');
+
+mongoose.connect('mongodb://localhost/mydb');
 
 var UserSchema = new Schema({
-    name  :  { type: String }
+    name  :  { type: String, index: { unique : true } } 
   , last_login  :  { type: Date, default: Date.now }
   , posts : [ { type : ObjectId, ref : 'Post' } ]
 });
 
 var PostSchema = new Schema( {	
-	author : { type : ObjectId, ref : 'User' }
+	  author : { type : ObjectId, ref : 'User' }
   , title : { type : String, required : true }
   , description : { type : String }
 //  , views : { type : Number , default : 0 }
@@ -35,12 +40,12 @@ var PostSchema = new Schema( {
   , published_at : { type : Date, default : Date.now }
   , content : { type : String }
 });
+        
+
+var User = mongoose.model('User', UserSchema)
+  , Post = mongoose.model('Post', PostSchema);
 
 
-var User = mongoose.model('users', UserSchema)
-  , Comment = mongoose.model('comment', CommentSchema);
-
-var app = express.createServer();
 
 
 
@@ -56,94 +61,204 @@ function compile(str, path) {
 }
 
 
-var app = express.createServer(
-    express.bodyParser()
-  , express.static(__dirname + "/public")
-  , express.cookieParser()
-  , express.session({ secret: 'htuayreve'})
-  // , stylus.middleware({ 
-  // 		src: __dirname ,
-  //  		dest: __dirname + '/public',
-  //    	compile: compile
-  //  	})
-  , everyauth.middleware()
-);
+// var app = express.createServer(
+//     express.bodyParser()
+//   , express.static(__dirname + "/public")
+//   , express.cookieParser()
+//   , express.session({ secret: 'htuayreve'})
+//   , stylus.middleware({ 
+//         src: __dirname ,
+//         dest: __dirname + '/public',
+//         compile: compile
+//     })
+// 
+//   , express.errorHandler()
+//  // , everyauth.middleware()
+// );
+var app = express.createServer();
 
-app.configure( function () {
-  	app.set('view engine', 'jade');
-	app.set('views', __dirname + '/views');
+app.configure( function() {
+  app.set('view engine', 'jade');
+  app.set('views', __dirname + '/views');
+  app.use(express.bodyParser());
+ /// app.use(express.methodOverride());
+  app.use(stylus.middleware({ 
+       src: __dirname
+     , dest: __dirname + '/public'
+     , compile: compile
+  }));  
+  app.use(express.static(__dirname + "/public"));
+  app.use(express.cookieParser());
+  app.use(express.session({ secret: 'htuayreve'}));
+  app.use(app.router);
+//  app.use(express.errorHandler());
 });
 
-app.get('/', function (req, res) {
-  	res.render('index', {
-		title : 'home'
-	});
+app.configure('development', function(){
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
 });
 
-app.get('/account', function(req, res) {
-	if(req.loggedIn) {
-		res.render('account');
-	} else {
-		console.log('not loggedin');
-		res.redirect('/');
-	}
+app.configure('production', function(){
+  app.use(express.errorHandler()); 
 });
 
-everyauth.helpExpress(app);
+
+app.dynamicHelpers({
+  session: function(req, res){
+    return req.session;
+  }
+});
+
+
+app.get('/', loadPosts, function (req, res) {
+	console.log('index====');
+	if(req.session) {
+     console.log('JSON.stringify(req.session) : ' + JSON.stringify(req.session));       
+  }
+  var posts = req.posts || { };
+  console.log('JSON.stringify(posts) : ' + JSON.stringify(posts));
+  
+  res.render('index', {
+      title : 'home'
+    , posts : posts
+  });
+});
+
+function loadPosts(req, res, next) {
+  Post.find({})
+    .populate('author', ['name'])
+//    .limit(5)
+    .exec(function(err, docs) {
+      if(docs) {       
+        req.posts = docs;
+      }
+      next();
+    });
+}
+
+app.get('/login', function (req, res) {
+  console.log('req.query.username : ' + req.query.username);  
+  var name = req.query.username;
+      //pass = req.query.password;
+  if(name) {
+//    console.log('pass : ' + pass);    
+    req.session.isLoggedIn = true;
+    req.session.user = {
+      name : name
+    };
+    findOrCreateUser(name);
+    res.redirect('/');
+  } else {
+    res.render('login', {
+      title: 'login'
+    });
+  }
+});
+
+function findOrCreateUser(name) {
+  User.findOne({name : name }, function(err, doc) {
+    if(err || !doc) {
+      var user = new User({
+        name : name
+      })
+      user.save();
+    } else {
+      doc.last_login = new Date();
+      doc.save();
+    }
+  });  
+}
+
+app.get('/post', function (req, res) {
+  res.render('post', {
+    title : 'post'
+  })
+});
+
+app.get('/post/:id', function(req, res) {
+        
+  Post.findById(req.params.id)
+    .populate('author', ['name'])
+    .exec(function(err, doc) {      
+      if(doc) {
+          res.render('postView', {
+              title : 'post'
+            , post : doc
+          });
+      } else {
+          console.log('I dont have that');
+          res.send(404);
+      }
+  });
+});
+
+
+
+app.post('/post', loadUser, function (req, res) {
+  var body = req.body  
+    , title = body.title
+    , description = body.description
+    , content = body.content
+    , id = req._id
+    ;
+
+  var post = new Post({
+      author : id
+    , title : title
+    , description : description
+    , content : content
+  });
+  
+  post.save();  
+
+  res.redirect('/');  
+});
+
+function loadUser(req, res, next) {
+  var name = req.session.user.name;
+  User.findOne({name : name }, function(err, doc) {
+    if(err) {
+      console.log('error cant find ObjectId');
+      next(new UserLoadError());
+    }
+    req._id = doc._id;
+    next();
+  });
+}
+// 
+app.get('/logout', function (req, res) {
+  console.log('logout');
+  if(req.session.isLoggedIn) {
+    req.session.destroy();    
+  } else {
+    console.log('===========not loggedin============');   
+  }
+  res.redirect('/');
+});
+
+
+app.get('/about', function(req, res) {
+  res.render('about', {
+    title : 'about'
+  });
+});
+
+function UserLoadError(msg){
+  this.name = 'UserLoadError';
+  Error.call(this, msg);
+  Error.captureStackTrace(this, arguments.callee);
+}
+
+app.error(function(err, req, res, next) {
+  if(err instanceof UserLoadError) {
+    console.log('user load error');
+    res.redirect('/post');
+  }
+  next();
+});
+
 
 app.listen(3000);
 
 console.log('Go to http://local.host:3000');
 
-// app.configure(function(){
-//   app.set('views', __dirname + '/views');
-//   app.set('view engine', 'jade');
-//   app.use(express.bodyParser());
-//   app.use(express.cookieParser());
-//   app.use(express.session({ secret: 'ddfssf'}));
-//   app.use(express.methodOverride());
-//   app.use(stylus.middleware({ 
-// 	src: __dirname ,
-//   	dest: __dirname + '/public',
-//     compile: compile
-//   }));
-//   everyauth.middleware();
-//   app.use(app.router);
-//   app.use(express.static(__dirname + '/public'));
-// 
-// });
-// 
-// everyauth.helpExpress(app);
-// 
-// app.configure('development', function(){
-//   app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
-// });
-// 
-// app.configure('production', function(){
-//   app.use(express.errorHandler()); 
-// });
-// 
-// // Routes
-// 
-// app.get('/', function(req, res){
-//   res.render('index', {
-//     title: 'Home'
-//   });
-// });
-// 
-// app.get('/about', function(req, res){
-//   res.render('about', {
-//     title: 'About'
-//   });
-// });
-// 
-// app.get('/contact', function(req, res){
-//   res.render('contact', {
-//     title: 'Contact'
-//   });
-// });
-// 
-// app.listen(3000);
-// console.log('everyauth.twitter.entryPath(); : ' + everyauth.twitter.entryPath());
-// 
-// console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

@@ -4,32 +4,23 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
-    div#header
-      nav
-        ul
-          li 
-            a(href="/") Home
-          li 
-            a(href="/about") About
-          - if (!everyauth.loggedIn)
-            li
-              a(href="/auth/twitter") Login with twitter
-            li
-              a(href='/auth/facebook') Login with facebook
-            li
-              a(href='/account') account
-          - else
-            li
-              a(href='/logout') Logout
-    div#wrapper!= body
-        div#footer 
-          section.css-table
-            section.four-column
-              section.cell
-                p Mauris porttitor <br />felis eu leo aliquet<br /> ac rutrum odio aliquet
-              section.cell
-                p Mauris porttitor <br />felis eu leo aliquet<br /> ac rutrum odio aliquet
-              section.cell
-                p Mauris porttitor <br />felis eu leo aliquet<br /> ac rutrum odio aliquet
-              section.cell
-                p Mauris porttitor <br />felis eu leo aliquet<br /> ac rutrum odio aliquet
+    div#wrapper
+      div#header
+        //    li 
+        //      p you are #{session.user.name}
+        h1
+          a(href='/') Test.com
+        nav
+          ul
+            li 
+              a(href="/about") About
+            - if (session.isLoggedIn)                      
+              li
+                a(href='/logout') Logout
+              li
+                a(href='/post') create a post
+            - else
+              li
+                a(href='/login') Login
+      div#content!= body
+  
