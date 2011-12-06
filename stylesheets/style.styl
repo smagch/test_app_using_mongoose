@@ -230,8 +230,32 @@ label
   background #fff
   border-radius(30px)
 
+.tag
+  background #847E82 
+  border-radius(15px)
+  display inline-block
+  padding 5px 15px 6px 
+  color #fff
+  text-decoration none
+  position relative
+  cursor pointer
+  &:hover
+    text-decoration underline
 
+input#tagInput
+  
 
+button()
+  background #fc9200 
+  border-radius(15px)
+  display inline-block
+  padding 5px 15px 6px 
+  color #fff
+  text-decoration none
+  position relative
+  cursor pointer
+  &:hover
+    background-color #db0d5f
 /* Header
 -----------------------------------------------------------------------------*/
 #header
@@ -253,18 +277,8 @@ label
       li 
         display inline
         margin-left 1%
-        a 
-          background #fc9200 
-          border-radius(15px)
-          display inline-block
-          padding 5px 15px 6px 
-          color #fff
-          text-decoration none
-          position relative
-          cursor pointer
-          &:hover
-            background-color #db0d5f 
-
+        a
+          button()
 
 ul#post-list
   padding 0
@@ -274,6 +288,22 @@ ul#post-list
     margin 10px
     border-radius(10px)
     background #999
+
+ul#post-content
+   list-style none
+
+.button
+  background #fc9200 
+  border-radius(15px)
+  display inline-block
+  padding 5px 15px 6px 
+  color #fff
+  text-decoration none
+  position relative
+  cursor pointer
+  &:hover
+    background-color #db0d5f
+
 
 /* Footer
 -----------------------------------------------------------------------------*/

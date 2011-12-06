@@ -3,6 +3,8 @@ html
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src='/javascripts/jquery-1.7.min.js')
+    script(src='/javascripts/underscore.js')
   body
     div#wrapper
       div#header
@@ -14,6 +16,8 @@ html
           ul
             li 
               a(href="/about") About
+            li
+              a(href='/ranking') Ranking
             - if (session.isLoggedIn)                      
               li
                 a(href='/logout') Logout

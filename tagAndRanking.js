@@ -8,13 +8,12 @@ var express = require('express')
 
 // pagenater
 // little bit of design
+// tag editing
 
-
-
-// TODO 2. every user can edit tag
 
 // TODO 3. consider view count ranking
-
+// TODO 3. user view record page > use capped collection?
+// TODO 3. expire code
 // TODO 4. deploy them
 
 // TODO 5. validation and so on.
@@ -31,22 +30,43 @@ var UserSchema = new Schema({
   , posts : [ { type : ObjectId, ref : 'Post' } ]
 });
 
+
+// var TagSchema = new Schema({
+//     name : { type : String }
+// //  , posts : [ { type : ObjectId, ref : 'Post' }]
+// });
+
+
 var PostSchema = new Schema( {	
-	  author : { type : ObjectId, ref : 'User' }
+	  author : { type : ObjectId, ref : 'User', required : true }
   , title : { type : String, required : true }
-  , description : { type : String }
-//  , views : { type : Number , default : 0 }
-//  , tags : [ { type : String } ]
+  , description : { type : String, required : true }
+  , view_count : { type : Number , default : 1 }
+  , tags : [ String ]
   , published_at : { type : Date, default : Date.now }
-  , content : { type : String }
+  , content : { type : String, required : true }
 });
+
+// TODO : if anonymouse, use IP address
+var ViewSchema = new Schema({
+    postId : { type : ObjectId, ref : 'Post', required : true }
+  , userId : { type : ObjectId, ref : 'User' }
+  , ipAddress : String
+  , date : { type : Date, default : Date.now }
+  //, last_viewed : { type : Date, default : Date.now }
+});
+
+
         
 
 var User = mongoose.model('User', UserSchema)
-  , Post = mongoose.model('Post', PostSchema);
-
-
-
+  , Post = mongoose.model('Post', PostSchema)
+  , View = mongoose.model('View', ViewSchema)
+//  , Tag = mongoose.model('Tag', TagSchema)
+  ;
+//Post.ensureIndex({ tags.name : 1 });
+//  Post.ensureIndex({ author : 1 });
+//Post.ensureIndex({ tags : 1 });
 
 
 
@@ -137,34 +157,48 @@ function loadPosts(req, res, next) {
 }
 
 app.get('/login', function (req, res) {
-  console.log('req.query.username : ' + req.query.username);  
-  var name = req.query.username;
-      //pass = req.query.password;
-  if(name) {
-//    console.log('pass : ' + pass);    
-    req.session.isLoggedIn = true;
-    req.session.user = {
-      name : name
-    };
-    findOrCreateUser(name);
-    res.redirect('/');
-  } else {
-    res.render('login', {
-      title: 'login'
-    });
-  }
+  res.render('login', {
+    title: 'login'
+  });  
 });
 
-function findOrCreateUser(name) {
-  User.findOne({name : name }, function(err, doc) {
+
+app.post('/session', findOrCreateUser, function (req, res) {
+      //TODO : should avoid expose user info?
+    req.session.isLoggedIn = true;
+    req.session.user = req.user;
+    //TODO : before login, should store redirect url somewhere
+    res.redirect('/');
+});
+
+// TODO : use upsert
+function findOrCreateUser(req, res, next) {
+  var name = req.body.username;
+  User.findOne({ name : name }, function (err, doc) {
     if(err || !doc) {
-      var user = new User({
-        name : name
-      })
-      user.save();
+        var user = new User({
+            name : name
+        });
+        user.save(function (err2, doc2) {
+            if(err2) {
+              // TODO what to do? implement error
+              console.log('error err2===================');
+              res.redirect('/login');
+            }
+            req.user = {
+                name : name
+              , userId : doc2._id
+            }
+            next();
+        });
     } else {
-      doc.last_login = new Date();
-      doc.save();
+        doc.last_login = new Date();
+        doc.save();
+        req.user = {
+            name : doc.name
+          , userId : doc._id
+        }
+        next();
     }
   });  
 }
@@ -175,23 +209,107 @@ app.get('/post', function (req, res) {
   })
 });
 
-app.get('/post/:id', function(req, res) {
-        
-  Post.findById(req.params.id)
-    .populate('author', ['name'])
-    .exec(function(err, doc) {      
-      if(doc) {
-          res.render('postView', {
-              title : 'post'
-            , post : doc
-          });
-      } else {
-          console.log('I dont have that');
-          res.send(404);
+
+app.get('/post/:id', loadPostById, function (req, res) {
+  // TODO : search IP address
+  var postId = req.params.id
+    , viewProp = { postId : postId };
+  
+  if(!req.session.isLoggedIn) {
+    var ipAddress = getClientIp(req);
+    console.log('ipAddress : ' + ipAddress);
+    viewProp.ipAddress = ipAddress;
+  } else {
+    viewProp.userId = req.session.user.userId;
+  }
+  
+  View.findOne(viewProp, function (err, doc) {
+      if(err || !doc) {
+        var view = new View(viewProp);
+        view.save();
+        req.post['view_count'] += 1;
+        req.post.save();
       }
+  });
+  
+  res.render('postView', {
+      title : 'post'
+    , post : req.post
+  });  
+});
+
+
+function loadPostById (req, res, next) {
+  var postId = req.params.id;  
+  Post.findById(postId)
+    .populate('author', ['name'])
+    .exec(function(err, doc) {
+      if(doc) {
+        req.post = doc;
+        next();
+      } else {
+        // define error
+        res.send('cant find post', 400);
+        return;
+      }        
+  });
+}
+
+
+function getClientIp(req) {
+  var ipAddress;
+  // Amazon EC2 / Heroku workaround to get real client IP
+  var forwardedIpsStr = req.header('x-forwarded-for'); 
+  if (forwardedIpsStr) {
+    // 'x-forwarded-for' header may return multiple IP addresses in
+    // the format: "client IP, proxy 1 IP, proxy 2 IP" so take the
+    // the first one
+    var forwardedIps = forwardedIpsStr.split(',');
+    ipAddress = forwardedIps[0];
+  }
+  if (!ipAddress) {
+    // Ensure getting client IP address still works in
+    // development environment
+    ipAddress = req.connection.remoteAddress;
+  }
+  return ipAddress;
+};
+
+// TODO see if request has session
+// TODO can do multiple edit?
+app.post('/tag/create/:id', function(req, res) {
+  console.log('tag create');
+  var tagname = req.body.tagname;
+  console.log(JSON.stringify(req.body));
+  if(!tagname || tagname === '') {
+    console.log('dont have tagname');
+    res.json('you need specify tagname', 400);
+    return;    
+  }
+  
+  Post.findById(req.params.id, function(err, doc) {
+    if(err || !doc) {
+      console.log('there is no such post id');
+      res.json('there is no such post id', 400);
+    } else {
+      // TODO see if duplicate      
+      doc.tags.push(tagname);
+      doc.save(function(err, doc) {
+        if(err) {
+          res.json('internal server error', 500);
+        } else {
+          console.log('ok');
+          res.json('ok', 200); 
+        }
+      });
+    }
   });
 });
 
+//TODO
+app.post('/tag/destroy/:id', function(req, res) {
+  
+});
 
 
 app.post('/post', loadUser, function (req, res) {
@@ -216,7 +334,7 @@ app.post('/post', loadUser, function (req, res) {
 
 function loadUser(req, res, next) {
   var name = req.session.user.name;
-  User.findOne({name : name }, function(err, doc) {
+  User.findOne({name : name }, function (err, doc) {
     if(err) {
       console.log('error cant find ObjectId');
       next(new UserLoadError());
@@ -236,12 +354,47 @@ app.get('/logout', function (req, res) {
   res.redirect('/');
 });
 
+app.get('/search', function (req, res) {
+  console.log('search');  
+  var query = req.query;
+  console.log('query : ' + query);
+  var tag = query.tag;
+  console.log('tag : ' + tag);
+  Post.find({tags : tag}, function (err, docs) {
+    res.render('search', {
+        title : 'search'
+      , posts : docs
+    });
+  });  
+});
 
-app.get('/about', function(req, res) {
+
+app.get('/ranking', function (req, res) {
+    Post.find({})
+      .sort( 'view_count', -1 )
+      .populate('author', ['name'])
+      .exec(function (err, docs) {
+          if(err || !docs) {
+              console.log('errorrrr');
+              console.log('JSON.stringify(err) : ' + JSON.stringify(err));              
+              res.send(500);
+          } else {
+              console.log('JSON.stringify(docs) : ' + JSON.stringify(docs));            
+              res.render('search', {
+                  title : 'ranking'
+                , posts : docs
+              });
+          }
+      });
+});
+
+
+app.get('/about', function (req, res) {
   res.render('about', {
     title : 'about'
   });
 });
+
 
 function UserLoadError(msg){
   this.name = 'UserLoadError';
@@ -249,10 +402,19 @@ function UserLoadError(msg){
   Error.captureStackTrace(this, arguments.callee);
 }
 
+function InternalServerError(msg) {
+  this.name = 'InternalServerError';
+  Error.call(this, msg);
+  Error.captureStackTrace(this, arguments.callee);
+}
+
+// TODO : when create Error, specify redirectUrl or json msg
 app.error(function(err, req, res, next) {
   if(err instanceof UserLoadError) {
     console.log('user load error');
     res.redirect('/post');
+  } else if ( err instanceof InternalServerError) {
+    //res.
   }
   next();
 });

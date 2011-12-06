@@ -1,4 +1,53 @@
-li author : #{post.author.name}
-li title : #{post.title}
-li description : #{post.description}
-li content : #{post.content}
+ul#post-content  
+  li author : #{post.author.name}
+  li title : #{post.title}
+  li view count : #{post.view_count}
+  li description : #{post.description}
+  li content : #{post.content}
+  ul#tags
+    for tag in post.tags
+      li.tag 
+        a(href='/search?tag=#{tag}') #{tag}
+  .button#editBtn create tag
+  input#tagInput
+- var hoge = 'hogefoobar'         
+script(src='/javascripts/Porter.js')
+script
+  var porter = Porter({
+    tag: {
+      create : ['post', '/tag/create/:postId'],
+      search : ['get', '/search']      
+    }
+  });
+  console.log('hoge : ' + '#{hoge}' );  
+  
+  var tagTemplate = document.createElement('div');
+  tagTemplate.className = 'button';
+  $('#tagInput').on('keydown', function(e) {
+    if(e.keyCode === 13 || e.originalEvent.keyIdentifier === 'Enter') {
+      var tagname = $('#tagInput').val();
+      console.log('tagname : ' + tagname);
+      porter.tag.create({
+        postId : '#{post._id}'
+      }, {
+        tagname : tagname
+      },function(err, response) {
+        if(err) {
+          console.log('err : ' + err);          
+        } else {
+          console.log('response : ' + response );
+        }
+      });
+    }
+  });
+  $('#tagInput').css('display', 'none');
+  
+  
+  $('#editBtn').on('click', function(e) {
+    // var tag = tagTemplate.cloneNode(true);
+    // tag.textContent = 'hoge';
+    // $('#tags').append(tag);
+    $('#tagInput')
+      .css('display', 'block')
+      .focus();
+  });

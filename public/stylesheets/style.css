@@ -47,15 +47,20 @@ body{text-align:center;background-color:#000}
 label{width:200px}
 #wrapper{width:920px;text-align:left;margin-left:auto;margin-right:auto}
 #content{padding:20px;background:#fff;-webkit-border-radius:30px;-moz-border-radius:30px;-o-border-radius:30px;border-radius:30px}
+.tag{background:#847e82;-webkit-border-radius:15px;-moz-border-radius:15px;-o-border-radius:15px;border-radius:15px;display:inline-block;padding:5px 15px 6px;color:#fff;text-decoration:none;position:relative;cursor:pointer;}
+.tag:hover{text-decoration:underline}
+input#tagInput,button(){background:#fc9200;-webkit-border-radius:15px;-moz-border-radius:15px;-o-border-radius:15px;border-radius:15px;display:inline-block;padding:5px 15px 6px;color:#fff;text-decoration:none;position:relative;cursor:pointer;}
+input#tagInput:hover,button():hover{background-color:#db0d5f}
 #header h1{display:inline;float:left}
 #header h1 a{text-decoration:none}
 #header nav{text-align:right;margin-left:auto;margin-right:auto;}
 #header nav ul{list-style:none;padding:10px;margin-bottom:0;}
 #header nav ul li{display:inline;margin-left:1%;}
-#header nav ul li a{background:#fc9200;-webkit-border-radius:15px;-moz-border-radius:15px;-o-border-radius:15px;border-radius:15px;display:inline-block;padding:5px 15px 6px;color:#fff;text-decoration:none;position:relative;cursor:pointer;}
-#header nav ul li a:hover{background-color:#db0d5f}
 ul#post-list{padding:0;list-style:none;}
 ul#post-list li{padding:10px;margin:10px;-webkit-border-radius:10px;-moz-border-radius:10px;-o-border-radius:10px;border-radius:10px;background:#999}
+ul#post-content{list-style:none}
+.button{background:#fc9200;-webkit-border-radius:15px;-moz-border-radius:15px;-o-border-radius:15px;border-radius:15px;display:inline-block;padding:5px 15px 6px;color:#fff;text-decoration:none;position:relative;cursor:pointer;}
+.button:hover{background-color:#db0d5f}
 .ir{display:block;text-indent:-999em;overflow:hidden;background-repeat:no-repeat;text-align:left;direction:ltr}
 .ir br{display:none}
 .hidden{display:none;visibility:hidden}
