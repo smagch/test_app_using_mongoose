@@ -3,6 +3,7 @@ var express = require('express')
   , mongoose = require('mongoose')
 	, Schema = mongoose.Schema
 	, ObjectId = Schema.ObjectId
+	//, i18n = require('i18n')
 	;
 	
 
@@ -11,15 +12,22 @@ var express = require('express')
 // tag editing, use socket.io?
 
 
-// TODO 4. deploy them on heroku
+// TODO 4. how to implement daily, weekly and monthly ranking
+
 
 // TODO 5. validation and so on.
 // TODO 6. try unit test
 
 // TODO 7. add omment
+// TODO 8. use config file to specify EXPIRE and View remove time span
 // TODO 8. i18n support JP and EN
 // ensureIndex to array bug? send bug report?
 // TODO 9. user profile page, show posts
+
+// TODO deploy
+
+// TODO 10. consider tag i18n, datebase link
+// Tag link page add link and discussion
 
 
 
@@ -50,41 +58,82 @@ var PostSchema = new Schema( {
 
 // TODO : if anonymouse, use IP address
 var ViewSchema = new Schema({
-    postId : { type : ObjectId, ref : 'Post', required : true }
-  , userId : { type : ObjectId, ref : 'User' }
-  , ipAddress : String
+    postId : { type : ObjectId, ref : 'Post', }
+  , userId : { type : ObjectId, ref : 'User' }  
+  , ipAddress : String  
   , date : { type : Date, default : Date.now }
   //, last_viewed : { type : Date, default : Date.now }
 });
 
-
-
-
-        
+var ViewCountSchema = new Schema({
+    postId : { type : ObjectId, ref : 'Post', required : true }
+  , sum : { type : Number, required : true }
+  , from : { type : Date, required : true }
+  , to : { type : Date, required : true }   
+});     
 
 var User = mongoose.model('User', UserSchema)
   , Post = mongoose.model('Post', PostSchema)
   , View = mongoose.model('View', ViewSchema)
+  , ViewCount = mongoose.model('ViewCount', ViewCountSchema)
 //  , Tag = mongoose.model('Tag', TagSchema)
   ;
+  
+
 //Post.ensureIndex({ tags.name : 1 });
 //  Post.ensureIndex({ author : 1 });
 //Post.ensureIndex({ tags : 1 });
-var EXPIRE = 1000 * 60 * 60;// 1 hour
-//var EXPIRE = 1000 * 60;// 1 minute for test
+//var EXPIRE = 1000 * 60 * 60;// 1 hour
+var EXPIRE = 1000 * 60;// 1 minute for test
+//var INTERVAL = 1000 * 60 * 20;// 20 minute
+var INTERVAL = 1000 * 20;// 20 minute for test
 // View.count({}, function (err, doc) {
 //   console.log('JSON.stringify(err) : ' + JSON.stringify(err));  
 //   console.log('JSON.stringify(doc) : ' + JSON.stringify(doc));
 // });
+
+
 setInterval(function () {
   console.log('about to excute view remove');
-  var expireDate = new Date() - EXPIRE;
-  View.remove({date : { $lt : expireDate }}, function (err, docs) {
+  var now = new Date()
+    , expireDate = now - EXPIRE;
+  View.find({date : { $lt : expireDate }}, function (err, docs) {
     if(err) {
-      console.log('view remove err');
+      console.log('JSON.stringify(err) : ' + JSON.stringify(err));;                
+      return;
+    }
+    if(!docs) {
+      return;
+    }    
+    var map = { };
+    while(docs.length) {
+      var doc = docs.shift()
+        , key = doc.postId;
+      
+      if(map[key]) {
+          map[key].sum += 1;
+      } else {
+        map[key] = {
+            _id : key
+          , sum : 1
+        }
+      }
+      // TODO error handling
+      doc.remove();
+    }
+    console.log('view count map object by postId');
+    console.log('JSON.stringify(map) : ' + JSON.stringify(map));           
+    for(var key in map) {      
+      var viewCount = new ViewCount({
+          postId : map[key]._id
+        , sum : map[key].sum
+        , from : expireDate
+        , to : now
+      });
+      viewCount.save();
     }
   });
-}, EXPIRE);
+}, INTERVAL);
 
 
 // Configuration
@@ -230,20 +279,28 @@ app.get('/post', function (req, res) {
 app.get('/post/:id', loadPostById, function (req, res) {
   // TODO : search IP address
   var postId = req.params.id
-    , viewProp = { postId : postId };
+    , updateObj = {}
+    , viewProp = { postId : postId }
+    ;
   
   if(!req.session.isLoggedIn) {
     var ipAddress = getClientIp(req);
     console.log('ipAddress : ' + ipAddress);
     viewProp.ipAddress = ipAddress;
+///    updateObj.ipAddresses = ipAddress;
+//    viewProp.ipAddresses = ipAddress;
   } else {
     viewProp.userId = req.session.user.userId;
+//    updateObj.userIds = req.session.user.userId;
+//    viewProp.userIds = req.session.user.userId;
   }
   
+
   View.findOne(viewProp, function (err, doc) {
       if(err || !doc) {
         var view = new View(viewProp);
-        view.save();
+        view.save();        
+        //View.update({ postId : postId }, { $addToSet : { userIds : updateObj } } );
         req.post['view_count'] += 1;
         req.post.save();
       }
