@@ -8,18 +8,19 @@ var express = require('express')
 
 // pagenater
 // little bit of design
-// tag editing
+// tag editing, use socket.io?
 
 
-// TODO 3. consider view count ranking
-// TODO 3. user view record page > use capped collection?
-// TODO 3. expire code
-// TODO 4. deploy them
+// TODO 4. deploy them on heroku
 
 // TODO 5. validation and so on.
 // TODO 6. try unit test
 
 // TODO 7. add omment
+// TODO 8. i18n support JP and EN
+// ensureIndex to array bug? send bug report?
+// TODO 9. user profile page, show posts
+
 
 
 mongoose.connect('mongodb://localhost/mydb');
@@ -57,6 +58,8 @@ var ViewSchema = new Schema({
 });
 
 
+
+
         
 
 var User = mongoose.model('User', UserSchema)
@@ -67,7 +70,21 @@ var User = mongoose.model('User', UserSchema)
 //Post.ensureIndex({ tags.name : 1 });
 //  Post.ensureIndex({ author : 1 });
 //Post.ensureIndex({ tags : 1 });
-
+var EXPIRE = 1000 * 60 * 60;// 1 hour
+//var EXPIRE = 1000 * 60;// 1 minute for test
+// View.count({}, function (err, doc) {
+//   console.log('JSON.stringify(err) : ' + JSON.stringify(err));  
+//   console.log('JSON.stringify(doc) : ' + JSON.stringify(doc));
+// });
+setInterval(function () {
+  console.log('about to excute view remove');
+  var expireDate = new Date() - EXPIRE;
+  View.remove({date : { $lt : expireDate }}, function (err, docs) {
+    if(err) {
+      console.log('view remove err');
+    }
+  });
+}, EXPIRE);
 
 
 // Configuration
