@@ -8,46 +8,17 @@ ul#post-content
     for tag in post.tags
       li.tag 
         a(href='/search?tag=#{tag}') #{tag}
-  .button#editBtn create tag
-  input#tagInput
-- var hoge = 'hogefoobar'         
-script(src='/javascripts/Porter.js')
+  .button#editBtn edit tag
+  input#tagInput  
 script
-  var porter = Porter({
-    tag: {
-      create : ['post', '/tag/create/:postId'],
-      search : ['get', '/search']      
-    }
-  });
-  console.log('hoge : ' + '#{hoge}' );  
-  
-  var tagTemplate = document.createElement('div');
-  tagTemplate.className = 'button';
-  $('#tagInput').on('keydown', function(e) {
-    if(e.keyCode === 13 || e.originalEvent.keyIdentifier === 'Enter') {
-      var tagname = $('#tagInput').val();
-      console.log('tagname : ' + tagname);
-      porter.tag.create({
-        postId : '#{post._id}'
-      }, {
-        tagname : tagname
-      },function(err, response) {
-        if(err) {
-          console.log('err : ' + err);          
-        } else {
-          console.log('response : ' + response );
-        }
+  require(['Porter', 'underscore', 'jquery', 'backbone'], function () {
+      console.log('load porter');
+      var porter = Porter({
+          tag: {
+              create : ['post', '/tag/create/:postId']
+            , search : ['get', '/search']
+          }
       });
-    }
+      
   });
-  $('#tagInput').css('display', 'none');
   
-  
-  $('#editBtn').on('click', function(e) {
-    // var tag = tagTemplate.cloneNode(true);
-    // tag.textContent = 'hoge';
-    // $('#tags').append(tag);
-    $('#tagInput')
-      .css('display', 'block')
-      .focus();
-  });

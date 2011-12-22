@@ -11,23 +11,31 @@ var express = require('express')
 // little bit of design
 // tag editing, use socket.io?
 
+// TODO 4. make tag edit real-time app
+// TODO 4. use node-cron
+// TODO 4. socket.io test
 
-// TODO 4. how to implement daily, weekly and monthly ranking
+// if limit 10 tags, 
+// click edit_tag button and animation and show edit box
+// server-sent event ? 
 
-
+// TODO 5. how to implement daily, weekly and monthly ranking
 // TODO 5. validation and so on.
 // TODO 6. try unit test
-
 // TODO 7. add omment
+
 // TODO 8. use config file to specify EXPIRE and View remove time span
 // TODO 8. i18n support JP and EN
 // ensureIndex to array bug? send bug report?
 // TODO 9. user profile page, show posts
 
 // TODO deploy
-
+// TODO : edit post
 // TODO 10. consider tag i18n, datebase link
 // Tag link page add link and discussion
+
+
+// next step, twitter, facebook, dropbox api with everyauth
 
 
 
@@ -39,13 +47,6 @@ var UserSchema = new Schema({
   , posts : [ { type : ObjectId, ref : 'Post' } ]
 });
 
-
-// var TagSchema = new Schema({
-//     name : { type : String }
-// //  , posts : [ { type : ObjectId, ref : 'Post' }]
-// });
-
-
 var PostSchema = new Schema( {	
 	  author : { type : ObjectId, ref : 'User', required : true }
   , title : { type : String, required : true }
@@ -54,6 +55,7 @@ var PostSchema = new Schema( {
   , tags : [ String ]
   , published_at : { type : Date, default : Date.now }
   , content : { type : String, required : true }
+  , lang : { type : String }
 });
 
 // TODO : if anonymouse, use IP address
@@ -78,7 +80,8 @@ var User = mongoose.model('User', UserSchema)
   , ViewCount = mongoose.model('ViewCount', ViewCountSchema)
 //  , Tag = mongoose.model('Tag', TagSchema)
   ;
-  
+
+
 
 //Post.ensureIndex({ tags.name : 1 });
 //  Post.ensureIndex({ author : 1 });
@@ -198,11 +201,11 @@ app.dynamicHelpers({
 
 app.get('/', loadPosts, function (req, res) {
 	console.log('index====');
-	if(req.session) {
-     console.log('JSON.stringify(req.session) : ' + JSON.stringify(req.session));       
-  }
+	// if(req.session) {
+	//      console.log('JSON.stringify(req.session) : ' + JSON.stringify(req.session));       
+	//   }
   var posts = req.posts || { };
-  console.log('JSON.stringify(posts) : ' + JSON.stringify(posts));
+  //console.log('JSON.stringify(posts) : ' + JSON.stringify(posts));
   
   res.render('index', {
       title : 'home'
@@ -443,24 +446,47 @@ app.get('/search', function (req, res) {
 });
 
 
-app.get('/ranking', function (req, res) {
-    Post.find({})
-      .sort( 'view_count', -1 )
-      .populate('author', ['name'])
-      .exec(function (err, docs) {
-          if(err || !docs) {
-              console.log('errorrrr');
-              console.log('JSON.stringify(err) : ' + JSON.stringify(err));              
-              res.send(500);
-          } else {
-              console.log('JSON.stringify(docs) : ' + JSON.stringify(docs));            
-              res.render('search', {
-                  title : 'ranking'
-                , posts : docs
-              });
-          }
-      });
+app.get('/ranking/:timeUnit', function (req, res) {
+  var timeUnit = req.params.timeUnit
+    , toDate = new Date()
+    , fromDate;
+  
+  // if(timeUnit === 'weekly' ) {
+  //   fromDate = toDate - 1000 * 60 * 60 * 24 * 7
+  // }
+  // mapReduce  
+  
+  // var fromDate
+  //   , toDate
+
+  // ViewCount.find({ from : { $gt : fromDate }, to : { $lt : toDate }}, function(err, doc){
+
+  //});
+  // if have query, if have not query, then 
+  // get monthly or daily user history, default daily. send as render
+  // 
+  // first of all, make search.jade ajax
+  
+  Post.find({})
+    .sort( 'view_count', -1 )
+    .populate('author', ['name'])
+    .exec(function (err, docs) {
+        if(err || !docs) {          
+            //TODO define ERROR
+            console.log('errorrrr');
+            console.log('JSON.stringify(err) : ' + JSON.stringify(err));              
+            res.send(500);
+        } else {
+            console.log('JSON.stringify(docs) : ' + JSON.stringify(docs));            
+            res.render('search', {
+                title : 'ranking'
+              , posts : docs
+            });
+        }
+    });
 });
+
+app.get('/ranking')
 
 
 app.get('/about', function (req, res) {

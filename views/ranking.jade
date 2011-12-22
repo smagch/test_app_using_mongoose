@@ -1,0 +1,10 @@
+ul#post-list
+  for post in posts
+    li
+      p author : #{post.author.name}
+      p title : #{post.title}
+      p description : #{post.description}
+      //li content : #{post.content}
+      a(href='/post/'+ post._id ) see this post
+      br
+      br

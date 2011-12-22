@@ -17,22 +17,46 @@
 
   // The top-level namespace. All public Backbone classes and modules will
   // be attached to this. Exported for both CommonJS and the browser.
-  var Backbone;
+  var Backbone = {};
   if (typeof exports !== 'undefined') {
     Backbone = exports;
   } else {
     Backbone = root.Backbone = {};
   }
+  
+  // if (typeof exports !== 'undefined') {
+  //   if (typeof module !== 'undefined' && module.exports) {
+  //     exports = module.exports = Backbone;
+  //   }
+  //   exports.Backbone = Backbone;
+  // } else if (typeof define === 'function' && define.amd) {
+  //   // Register as a named module with AMD.
+  //   define('backbone', function() {
+  //     return Backbone;
+  //   });
+  // } else {
+  //   // Exported as a string, for Closure Compiler "advanced" mode.
+  //   root.Backbone = Backbone;
+  // }
+  
 
   // Current version of the library. Keep in sync with `package.json`.
   Backbone.VERSION = '0.5.3';
 
   // Require Underscore, if we're on the server, and it's not already present.
   var _ = root._;
-  if (!_ && (typeof require !== 'undefined')) _ = require('underscore')._;
+  if (!_ && (typeof require !== 'undefined'))
+    _ = require('underscore');
 
-  // For Backbone's purposes, jQuery, Zepto, or Ender owns the `$` variable.
-  var $ = root.jQuery || root.Zepto || root.ender;
+  // For Backbone's purposes, jQuery or Zepto owns the `$` variable.
+  var $ = root.jQuery || root.Zepto;
+  if (!$ && (typeof require !== 'undefined')) 
+    $ = require('jQuery');
+
+    
+  
+  
+  
 
   // Runs Backbone.js in *noConflict* mode, returning the `Backbone` variable
   // to its previous owner. Returns a reference to this Backbone object.
@@ -984,7 +1008,7 @@
     // Ensure that the View has a DOM element to render into.
     // If `this.el` is a string, pass it through `$()`, take the first
     // matching element, and re-assign it to `el`. Otherwise, create
-    // an element from the `id`, `className` and `tagName` properties.
+    // an element from the `id`, `className` and `tagName` proeprties.
     _ensureElement : function() {
       if (!this.el) {
         var attrs = this.attributes || {};
