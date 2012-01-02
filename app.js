@@ -1,19 +1,20 @@
 var express = require('express')
   , stylus = require('stylus')
   , mongoose = require('mongoose')
+	, _ = require('underscore')
 	, Schema = mongoose.Schema
 	, ObjectId = Schema.ObjectId
-	//, i18n = require('i18n')
 	;
 	
 
 // pagenater
-// little bit of design
-// tag editing, use socket.io?
 
 // TODO 4. make tag edit real-time app
-// TODO 4. use node-cron
-// TODO 4. socket.io test
+// TODO 4. use cron
+// TODO 4. design
+// test suite
+
+// TODO 4. ask in jade issue page about direct javascript injection.
 
 // if limit 10 tags, 
 // click edit_tag button and animation and show edit box
@@ -210,6 +211,7 @@ app.get('/', loadPosts, function (req, res) {
   res.render('index', {
       title : 'home'
     , posts : posts
+    , locale : 'root'
   });
 });
 
@@ -227,7 +229,8 @@ function loadPosts(req, res, next) {
 
 app.get('/login', function (req, res) {
   res.render('login', {
-    title: 'login'
+      title: 'login'
+    , locale : 'root'
   });  
 });
 
@@ -274,7 +277,8 @@ function findOrCreateUser(req, res, next) {
 
 app.get('/post', function (req, res) {
   res.render('post', {
-    title : 'post'
+      title : 'post'
+    , locale : 'root'
   })
 });
 
@@ -308,10 +312,13 @@ app.get('/post/:id', loadPostById, function (req, res) {
         req.post.save();
       }
   });
-  
+  var postJson = JSON.stringify(req.post);
+  console.log('postJson : ' + postJson);  
   res.render('postView', {
       title : 'post'
     , post : req.post
+    , locale : 'root'
+    , postJson : postJson
   });  
 });
 
@@ -354,33 +361,122 @@ function getClientIp(req) {
 
 // TODO see if request has session
 // TODO can do multiple edit?
-app.post('/tag/create/:id', function(req, res) {
-  console.log('tag create');
-  var tagname = req.body.tagname;
-  console.log(JSON.stringify(req.body));
-  if(!tagname || tagname === '') {
-    console.log('dont have tagname');
-    res.json('you need specify tagname', 400);
-    return;    
-  }
-  
-  Post.findById(req.params.id, function(err, doc) {
-    if(err || !doc) {
-      console.log('there is no such post id');
-      res.json('there is no such post id', 400);
-    } else {
-      // TODO see if duplicate      
-      doc.tags.push(tagname);
-      doc.save(function(err, doc) {
+// app.post('/tag/create/:id', function(req, res) {
+//   console.log('tag create');
+//   var tagname = req.body.tagname;
+//   console.log(JSON.stringify(req.body));
+//   if(!tagname || tagname === '') {
+//     console.log('dont have tagname');
+//     res.json('you need specify tagname', 400);
+//     return;    
+//   }
+//   
+//   Post.findById(req.params.id, function(err, doc) {
+//     if(err || !doc) {
+//       console.log('there is no such post id');
+//       res.json('there is no such post id', 400);
+//     } else {
+//       // TODO see if duplicate      
+//       doc.tags.push(tagname);
+//       doc.save(function(err, doc) {
+//         if(err) {
+//           res.json('internal server error', 500);
+//         } else {
+//           console.log('ok');
+//           res.json('ok', 200); 
+//         }
+//       });
+//     }
+//   });
+// });
+app.get('/tags/:id', function (req, res) {
+    console.log('tag get');    
+    Post.findById(req.params.id, function (err, doc) {
         if(err) {
-          res.json('internal server error', 500);
-        } else {
-          console.log('ok');
-          res.json('ok', 200); 
+            res.json('no such id', 404);
+            return;
         }
-      });
+        res.json({ tags : doc.tags } );
+    });
+});
+
+app.post('/tags/:id', function (req, res) {
+    console.log('tag update');
+    var model = req.body;
+    if(!model && !model.tags) {
+        res.json('error', 500);
+        return;
     }
-  });
+    
+    Post.update( { _id : req.params.id }
+      , {
+          $set : model
+      }
+      , { upsert : true }
+      , function(err, doc) {
+          console.log('update');
+          if(err) {
+              res.json('error occured', 500);
+              return;
+          } 
+          res.json('ok', 200);
+      }
+    );
+    // Post.findById(req.params.id, function (err, doc) {
+    //         if(err || !doc) {
+    //             res.json('no such id', 400);            
+    //             return;
+    //         }
+    //         var toRemove = _.difference( doc.tags, model.tags);
+    //         var toAdd = _.difference(model.tags, doc.tags);
+    //         console.log('JSON.stringify(toRemove) : ' + JSON.stringify(toRemove));
+    //         console.log('JSON.stringify(toAdd) : ' + JSON.stringify(toAdd));
+    //         
+    // 
+    //     });
+    
+    
+    // Link.findOne({}, function (err, doc) {
+    //     
+    //     console.log('JSON.stringify(err) : ' + JSON.stringify(err));
+    //     console.log('JSON.stringify(docs) : ' + JSON.stringify(doc));
+    //     if(err || !doc) {
+    //         doc = new Link({tags : model.tags});
+    //         doc.save(function (err) {
+    //             console.log('JSON.stringify(err) : ' + JSON.stringify(err));
+    //             res.json('ok', 200);
+    //         });
+    //         return;
+    //     }
+    //     
+    //     var toRemove = _.difference( doc.tags, model.tags);
+    //     var toAdd = _.difference(model.tags, doc.tags);
+    //     console.log('JSON.stringify(toRemove) : ' + JSON.stringify(toRemove));
+    //     console.log('JSON.stringify(toAdd) : ' + JSON.stringify(toAdd));
+    //     
+    //     Link.update({}, 
+    //         {
+    //             //$addToSet : { $each : { tags : toAdd }}
+    //             $pushAll : { tags : toAdd }
+    //           //, $pullAll : { tags : toRemove }
+    //         }            
+    //       , { upsert : true }
+    //       , function(err, docs){
+    //           console.log('JSON.stringify(err) : ' + JSON.stringify(err));
+    //           console.log('JSON.stringify(docs) : ' + JSON.stringify(docs));
+    //           if(toRemove.length) {
+    //             Link.update({}, {$pullAll : { tags : toRemove }}, null, function(err, docs){
+    //                 console.log('JSON.stringify(err) : ' + JSON.stringify(err));
+    //                 console.log('JSON.stringify(docs) : ' + JSON.stringify(docs));
+    //                 res.json('ok', 200);
+    //             });
+    //           } else {
+    //               res.json('ok', 200);
+    //           }
+    //    
+    //         }
+    //     );
+    // });
 });
 
 //TODO
@@ -441,6 +537,7 @@ app.get('/search', function (req, res) {
     res.render('search', {
         title : 'search'
       , posts : docs
+      , locale : 'root'
     });
   });  
 });
@@ -481,6 +578,7 @@ app.get('/ranking/:timeUnit', function (req, res) {
             res.render('search', {
                 title : 'ranking'
               , posts : docs
+              , locale : 'root'
             });
         }
     });
@@ -491,7 +589,8 @@ app.get('/ranking')
 
 app.get('/about', function (req, res) {
   res.render('about', {
-    title : 'about'
+      title : 'about'
+    , locale : 'root'
   });
 });
 

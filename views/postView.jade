@@ -4,21 +4,16 @@ ul#post-content
   li view count : #{post.view_count}
   li description : #{post.description}
   li content : #{post.content}
-  ul#tags
-    for tag in post.tags
-      li.tag 
-        a(href='/search?tag=#{tag}') #{tag}
-  .button#editBtn edit tag
-  input#tagInput  
+  #tag-create create new tag
+  ul#tag-list
+  #tag-edit edit tag
+  .clearfix
+-var test = post;
 script
-  require(['Porter', 'underscore', 'jquery', 'backbone'], function () {
-      console.log('load porter');
-      var porter = Porter({
-          tag: {
-              create : ['post', '/tag/create/:postId']
-            , search : ['get', '/search']
-          }
-      });
-      
-  });
+  var postId = '#{post._id}';
+  var postObj = JSON.parse('!{postJson}');
+  var tags = postObj.tags;
+  require('views/post/main');
+//script(src='/javascripts/require.js', data-main='/javascripts/views/post/main', type='text/javascript')
+
   

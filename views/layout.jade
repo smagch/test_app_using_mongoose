@@ -1,29 +1,59 @@
 !!! 5
-html
+html.no-js
   head
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
-    script(data-main='/javascripts/main', src='/javascripts/require.js', type='text/javascript')
+    link(href='http://fonts.googleapis.com/css?family=Unkempt:700', rel='stylesheet', type='text/css')
+    script
+      var locale = '#{locale}';
+    script(src='/javascripts/modernizr-2.0.6.js')
+    script(src='/javascripts/require.js', data-main='javascripts/views/layout')
   body
     div#wrapper
-      div#header
-        //    li 
-        //      p you are #{session.user.name}
+      header.clearfix
         h1
-          a(href='/') Test.com
-        nav
+          a(href='/', title='Test.com home') Test.com
+        div
           ul
-            li 
-              a(href="/about") About
+            li
+              a(href='/help') Help
             li
               a(href='/ranking') Ranking
-            - if (session.isLoggedIn)                      
-              li
-                a(href='/logout') Logout
-              li
-                a(href='/post') create a post
-            - else
-              li
-                a(href='/login') Login
-      div#content!= body
-  
+            li
+              a(href='/post') create a post
+          - if (session.isLoggedIn)                      
+            span#logout-button.login-button Logout
+            ///a(href='/logout') Logout            
+          - else
+            span#login-button.login-button Login
+      div#login-box
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+        | this content is hidden
+      div#content.clearfix!= body
+      footer.clearfix
+        span © 2011 test.com
+        nav
+          ul          
+            li
+              a(href="/about") About
+            li
+              a(href='/tos') Terms
+          
