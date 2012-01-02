@@ -1,0 +1,9 @@
+<% _.each(tags, function(tag) { %>
+	<li class="tag-item">
+		<div class="tag-display">
+			<a href='/search?tag=<%= tag %>'><%= tag %></a>
+		</div>
+		<input size='' class="tag-input" value="<%= tag %>"></input>
+		<span class="tag-delete"></span>
+	</li>
+<%});%>
