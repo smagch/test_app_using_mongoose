@@ -107,7 +107,7 @@ sub { bottom: -0.25em; }
 
 ul, ol { margin: 1em 0; padding: 0 0 0 40px; }
 dd { margin: 0 0 0 40px; }
-nav ul, nav ol { list-style: none; margin: 0; padding: 0; }
+nav ul, nav ol, header ul { list-style: none; margin: 0; padding: 0; }
 
 
 /* =============================================================================
@@ -206,34 +206,195 @@ table { border-collapse: collapse; border-spacing: 0; }
 
 
 /* =============================================================================
-   Primary styles
-   Author: smagch
-   ========================================================================== */
 
-body
-  text-align center
-  background-color #000
-  
+   ========================================================================== */ 
+$content-background = #F5F5F5
+$footer-background = #AF615F
+ 
 label
   width 200px
-
-
+  
+div
+  display block
+  
+html,
+body
+  background-color #D6FBBD
+  margin 0
+  padding 0
+  height 100%
+  
 #wrapper
   width 920px
-  text-align left 
-  margin-left auto 
-  margin-right auto
-
-
+  margin auto
+  min-height 100%
+  position relative
+  
+$footer-height = 80px
+$margin-bottom = 20px
+$header-height = 40px
 #content
-  padding 20px
-  background #fff
-  border-radius(30px)
+  width 100%
+  padding 0
+  padding-bottom $footer-height
+  //background #838383 don't set background for padding-bottom
+  overflow auto
+  border-radius(10px)
 
-.tag
+$header-color = #6F6F6F
+
+header
+  height $header-height
+  line-height $header-height
+  h1
+    a
+      font-family: 'Unkempt', cursive;
+      font-size $header-height * 0.9
+      text-decoration none
+      color $header-color
+      &:visited
+        color $header-color
+    display inline
+    float left
+    margin 4px 0 0;
+    padding 0
+    line-height $header-height
+  div
+    float right
+    color #999
+    margin 4px 0
+    text-align right
+    font-weight bold
+    font-size 1.2em
+    color #E1E1E1    
+    .login-button, ul
+      border-radius(9px)
+      padding 5px 15px 6px 
+    .login-button
+      background #D04751
+      margin-left 9px
+      display inline
+      text-decoration none
+      position relative
+      cursor pointer
+      &:hover
+        background-color #CC070E
+    ul
+      background #4A994A
+      display inline
+      li
+        display inline
+        margin 0 1em        
+        a
+          text-decoration none
+          color inherit
+          &:visited
+            color inherit
+          &:hover
+            color #990E16
+
+footer
+  position absolute
+  bottom 0
+  width 100%
+  margin-bottom $margin-bottom
+  margin-top $margin-bottom
+  height $footer-height - $margin-bottom * 2
+  background $footer-background
+  border-radius(9px)
+  line-height @height
+  text-align right
+  nav
+    float left
+    padding-left 1em
+    height $footer-height - @margin-bottom
+    font-weight bold    
+    li
+      display inline
+      margin 0 1em      
+      a
+        text-decoration none
+        &:hover
+          text-decoration underline
+  span
+    float right
+    margin-right 2em
+
+#login-box
+  //display none
+  height 0
+  overflow hidden
+  transition(height, 0.3s, ease-out)
+
+.login #login-box
+  height 100px
+  //display block
+  
+#post-content
+  margin 0
+  padding 0
+  
+#tag-list
+  background #995782
+  border-radius(9px)
+  margin 10px 0
+
+$tag-height = 20px;
+$tag-padding = 12px;
+
+.tag-item
+  background #fc9200 
+  border-radius(15px)
+  vertical-align middle
+  display inline-block
+  padding $tag-padding
+  height $tag-height
+  margin 4px 
+  color #fff
+  position relative
+  cursor pointer
+  &.delete
+    opacity 0.2
+    input
+      text-decoration line-through
+      cursor pointer
+    .tag-delete
+      opacity 0
+      
+  &:hover
+    background-color #db0d5f
+  input
+    display none
+    background #EB8700
+    border none
+    width 140px
+
+.tag-display
+  font-size 100%
+  a
+    text-decoration none
+    font-size 1em
+    font-weight bold
+    &:hover
+      text-decoration underline
+    
+.tag-delete
+  display none
+  width 20px
+  height 20px
+  float right
+  cursor pointer
+  position absolute  
+  top - (@height / 4 )
+  right - (@width / 4 )
+  background url('/images/destroy.png') no-repeat 0 0
+
+#tag-edit
   background #847E82 
   border-radius(15px)
-  display inline-block
+  display block
+  float right
+  text-aling right
   padding 5px 15px 6px 
   color #fff
   text-decoration none
@@ -242,46 +403,46 @@ label
   &:hover
     text-decoration underline
 
-input#tagInput
-  
-
-button()
-  background #fc9200 
-  border-radius(15px)
-  display inline-block
-  padding 5px 15px 6px 
+#tag-create
+  background #847E82 
+  border-radius(9px)
+  padding 5px 15px 6px
+  margin-top 10px
+  display none  
   color #fff
   text-decoration none
   position relative
   cursor pointer
   &:hover
-    background-color #db0d5f
-/* Header
------------------------------------------------------------------------------*/
-#header
-  h1
-    a
-      text-decoration none      
-    display inline
-    float left
-  
-  nav 
-    //width 960px
-    text-align right
-    margin-left auto 
-    margin-right auto
-    ul 
-      list-style none
-      padding 10px
-      margin-bottom 0
-      li 
-        display inline
-        margin-left 1%
-        a
-          button()
+    text-decoration underline
+    
+.editing 
+  input
+    display block
+  .tag-item:hover
+    .tag-delete
+      display inline-block
+  .tag-display
+    display none
+  .tag-delete    
+    &:hover      
+      background-position 0 -20px
+  #tag-create
+    display inline  
+
+button(radius)
+  border-radius(radius || 9px)  
+  display inline
+  padding 5px 15px 6px 
+  text-decoration none
+  position relative
+  cursor pointer
 
 ul#post-list
-  padding 0
+  background $content-background
+  padding 10px
+  margin 0
+  border-radius(9px)
   list-style none
   li
     padding 10px
@@ -305,14 +466,7 @@ ul#post-content
     background-color #db0d5f
 
 
-/* Footer
------------------------------------------------------------------------------*/
-// #footer
-//   color #666
-//   border-top 1px solid #ccc
-//   padding-top 1.5em
-//   ul 
-//     list-style none
+
 
 
 
