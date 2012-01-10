@@ -26,7 +26,7 @@ sup{top:-.5em}
 sub{bottom:-.25em}
 ul,ol{margin:1em 0;padding:0 0 0 40px}
 dd{margin:0 0 0 40px}
-nav ul,nav ol,header ul{list-style:none;margin:0;padding:0}
+nav ul,nav ol,header ul,#locales ul{list-style:none;margin:0;padding:0}
 img{border:0;-ms-interpolation-mode:bicubic}
 svg:not(:root){overflow:hidden}
 figure{margin:0}
@@ -45,36 +45,38 @@ input:valid,textarea:valid,input:invalid,textarea:invalid{background-color:#f0dd
 table{border-collapse:collapse;border-spacing:0}
 label{width:200px}
 div{display:block}
-html,body{background-color:#d6fbbd;margin:0;padding:0;height:100%}
+html,body{background-color:#67af6e;margin:0;padding:0;height:100%}
 #wrapper{width:920px;margin:auto;min-height:100%;position:relative}
 #content{width:100%;padding:0;padding-bottom:80px;overflow:auto;-webkit-border-radius:10px;-moz-border-radius:10px;-o-border-radius:10px;border-radius:10px}
 header{height:40px;line-height:40px;}
 header h1{display:inline;float:left;margin:4px 0 0;padding:0;line-height:40px}
 header h1 a{font-family:'Unkempt',cursive;font-size:36px;text-decoration:none;color:#6f6f6f;}
 header h1 a:visited{color:#6f6f6f}
-header div{float:right;color:#999;margin:4px 0;text-align:right;font-weight:bold;font-size:1.2em;color:#e1e1e1;}
-header div .login-button,header div ul{-webkit-border-radius:9px;-moz-border-radius:9px;-o-border-radius:9px;border-radius:9px;padding:5px 15px 6px}
-header div .login-button{background:#d04751;margin-left:9px;display:inline;text-decoration:none;position:relative;cursor:pointer;}
-header div .login-button:hover{background-color:#cc070e}
-header div ul{background:#4a994a;display:inline;}
-header div ul li{display:inline;margin:0 1em;}
-header div ul li a{text-decoration:none;color:inherit;}
-header div ul li a:visited{color:inherit}
-header div ul li a:hover{color:#990e16}
-footer{position:absolute;bottom:0;width:100%;margin-bottom:20px;margin-top:20px;height:40px;background:#af615f;-webkit-border-radius:9px;-moz-border-radius:9px;-o-border-radius:9px;border-radius:9px;line-height:40px;text-align:right;}
-footer nav{float:left;padding-left:1em;height:60px;font-weight:bold;}
-footer nav li{display:inline;margin:0 1em;}
-footer nav li a{text-decoration:none;}
-footer nav li a:hover{text-decoration:underline}
+header nav{float:right;text-align:right;color:#999;margin:4px 0;font-weight:bold;font-size:1.2em;color:#e1e1e1;}
+header nav .login-button,header nav ul{-webkit-border-radius:9px;-moz-border-radius:9px;-o-border-radius:9px;border-radius:9px;padding:6px 16px}
+header nav .login-button{background:#3325e1;margin-left:9px;display:inline;text-decoration:none;position:relative;cursor:pointer;}
+header nav .login-button:hover{background-color:#cc070e}
+header nav ul{background:#267e33;display:inline;}
+header nav ul li{display:inline;margin:0 1em;}
+header nav ul li a{text-decoration:none;color:inherit;}
+header nav ul li a:visited{color:inherit}
+header nav ul li a:hover{color:#990e16}
+footer{position:absolute;bottom:0;width:100%;margin-bottom:20px;margin-top:20px;height:40px;background:#267e33;-webkit-border-radius:9px;-moz-border-radius:9px;-o-border-radius:9px;border-radius:9px;line-height:40px;text-align:right;}
+footer ul{float:left;padding-left:1em;margin:0;height:60px;font-weight:bold;}
+footer ul li{display:inline;margin:0 1em;}
+footer ul li a{text-decoration:none;}
+footer ul li a:hover{text-decoration:underline}
 footer span{float:right;margin-right:2em}
-#login-box{height:0;overflow:hidden;-webkit-transition:height .3s ease-out;-moz-transition:height .3s ease-out;-o-transition:height .3s ease-out;transition:height .3s ease-out}
-.login #login-box{height:100px}
+#locales{padding:8px 24px;background:#1a1d31;color:#ececec;font-weight:bold;display:block;text-align:center;font-size:1.4em;-webkit-border-radius:9px;-moz-border-radius:9px;-o-border-radius:9px;border-radius:9px;}
+#locales li{display:inline;margin:0 10px;}
+#locales li a{text-decoration:none;}
+#locales li a:hover{color:#99434a}
 #post-content{margin:0;padding:0}
 #tag-list{background:#995782;-webkit-border-radius:9px;-moz-border-radius:9px;-o-border-radius:9px;border-radius:9px;margin:10px 0}
 .tag-item{background:#fc9200;-webkit-border-radius:15px;-moz-border-radius:15px;-o-border-radius:15px;border-radius:15px;vertical-align:middle;display:inline-block;padding:12px;height:20px;margin:4px;color:#fff;position:relative;cursor:pointer;}
-.tag-item.delete{opacity:.2;}
+.tag-item.delete{zoom:1;filter:'alpha(opacity=20)';opacity:.2;}
 .tag-item.delete input{text-decoration:line-through;cursor:pointer}
-.tag-item.delete .tag-delete{opacity:0}
+.tag-item.delete .tag-delete{zoom:1;filter:'alpha(opacity=0)';opacity:0}
 .tag-item:hover{background-color:#db0d5f}
 .tag-item input{display:none;background:#eb8700;border:none;width:140px}
 .tag-display{font-size:100%;}
@@ -95,6 +97,11 @@ ul#post-list li{padding:10px;margin:10px;-webkit-border-radius:10px;-moz-border-
 ul#post-content{list-style:none}
 .button{background:#fc9200;-webkit-border-radius:15px;-moz-border-radius:15px;-o-border-radius:15px;border-radius:15px;display:inline-block;padding:5px 15px 6px;color:#fff;text-decoration:none;position:relative;cursor:pointer;}
 .button:hover{background-color:#db0d5f}
+.button-delete{width:20px;height:20px;cursor:pointer;background:url("/images/destroy.png") no-repeat 0 0;}
+.button-delete:hover{background-position:0 -20px}
+.modal-background{background:#000;zoom:1;filter:'alpha(opacity=50)';opacity:.5;position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000}
+.modal-content{background:#e1e1e1;position:fixed;z-index:10001;top:100px;left:50%;padding:20px;width:520px;-webkit-border-radius:6px;-moz-border-radius:6px;-o-border-radius:6px;border-radius:6px;margin-left:-280px;}
+.modal-content .button-delete{position:absolute;top:-10px;right:-10px}
 .ir{display:block;text-indent:-999em;overflow:hidden;background-repeat:no-repeat;text-align:left;direction:ltr}
 .ir br{display:none}
 .hidden{display:none;visibility:hidden}
@@ -104,7 +111,7 @@ ul#post-content{list-style:none}
 .clearfix:before,.clearfix:after{content:"";display:table}
 .clearfix:after{clear:both}
 .clearfix{zoom:1}
-@media only screen and (min-width: 480px){}@media only screen and (min-width: 768px){}@media print{*{background:transparent !important;color:#000 !important;text-shadow:none !important;filter:none !important;-ms-filter:none !important}
+@media print{*{background:transparent !important;color:#000 !important;text-shadow:none !important;filter:none !important;-ms-filter:none !important}
 a,a:visited{color:#444 !important;text-decoration:underline}
 a[href]:after{content:" (" attr(href) ")"}
 abbr[title]:after{content:" (" attr(title) ")"}
