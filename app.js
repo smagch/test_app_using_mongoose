@@ -12,9 +12,8 @@ var express = require('express')
 // TODO 4. make tag edit real-time app
 // TODO 4. use cron
 // TODO 4. design
-// test suite
-
-// TODO 4. ask in jade issue page about direct javascript injection.
+// TODO 4. Initializr and media query
+// TODO 4. BDD
 
 // if limit 10 tags, 
 // click edit_tag button and animation and show edit box
@@ -22,8 +21,7 @@ var express = require('express')
 
 // TODO 5. how to implement daily, weekly and monthly ranking
 // TODO 5. validation and so on.
-// TODO 6. try unit test
-// TODO 7. add omment
+// TODO 7. add comment
 
 // TODO 8. use config file to specify EXPIRE and View remove time span
 // TODO 8. i18n support JP and EN
@@ -211,7 +209,7 @@ app.get('/', loadPosts, function (req, res) {
   res.render('index', {
       title : 'home'
     , posts : posts
-    , locale : 'root'
+    , locale : req.session.locale
   });
 });
 
@@ -230,7 +228,7 @@ function loadPosts(req, res, next) {
 app.get('/login', function (req, res) {
   res.render('login', {
       title: 'login'
-    , locale : 'root'
+    , locale : req.session.locale
   });  
 });
 
@@ -537,7 +535,7 @@ app.get('/search', function (req, res) {
     res.render('search', {
         title : 'search'
       , posts : docs
-      , locale : 'root'
+      , locale : (req.session.locale || 'root')
     });
   });  
 });
@@ -578,22 +576,29 @@ app.get('/ranking/:timeUnit', function (req, res) {
             res.render('search', {
                 title : 'ranking'
               , posts : docs
-              , locale : 'root'
+              , locale : req.session.locale
             });
         }
     });
 });
 
-app.get('/ranking')
+//app.get('/ranking')
 
 
 app.get('/about', function (req, res) {
   res.render('about', {
       title : 'about'
-    , locale : 'root'
+    , locale : req.session.locale
   });
 });
 
+app.get('/locale/:locale', function (req, res) {    
+    var locale = req.params.locale;
+    console.log('locale : ' + locale);
+        
+    req.session.locale = locale;
+    res.redirect('back');
+});
 
 function UserLoadError(msg){
   this.name = 'UserLoadError';

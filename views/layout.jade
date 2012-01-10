@@ -7,53 +7,42 @@ html.no-js
     script
       var locale = '#{locale}';
     script(src='/javascripts/modernizr-2.0.6.js')
-    script(src='/javascripts/require.js', data-main='javascripts/views/layout')
+    -if (session.isLoggedIn)
+      script(src='/javascripts/require.js', data-main='javascripts/views/layout/main-logged-in')
+    -else
+      script(src='/javascripts/require.js', data-main='javascripts/views/layout/main-logged-out')
   body
     div#wrapper
       header.clearfix
         h1
           a(href='/', title='Test.com home') Test.com
-        div
+        nav
           ul
             li
-              a(href='/help') Help
+              a(id='nav-help', href='/help') Help
             li
-              a(href='/ranking') Ranking
+              a(id='nav-search', href='/search') Search
             li
-              a(href='/post') create a post
+              a(id='nav-ranking', href='/ranking') Ranking
+            li
+              a(id='nav-create-post', href='/post') Create new post
           - if (session.isLoggedIn)                      
-            span#logout-button.login-button Logout
+            a#logout-button.login-button(id='nav-logout', href='/logout') Logout
             ///a(href='/logout') Logout            
           - else
-            span#login-button.login-button Login
-      div#login-box
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
-        | this content is hidden
+            span#login-button.login-button(id='nav-login') Login
+      
+      ul#locales
+        li
+          a(href='/locale/en') English
+        li
+          a(href='/locale/jp')　日本語
       div#content.clearfix!= body
       footer.clearfix
         span © 2011 test.com
-        nav
-          ul          
-            li
-              a(href="/about") About
-            li
-              a(href='/tos') Terms
+        ul          
+          li
+            a(id='footer-about', href="/about") About
+          li
+            a(id='footer-tos', href='/tos') Terms
           

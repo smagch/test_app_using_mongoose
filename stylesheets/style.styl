@@ -107,7 +107,7 @@ sub { bottom: -0.25em; }
 
 ul, ol { margin: 1em 0; padding: 0 0 0 40px; }
 dd { margin: 0 0 0 40px; }
-nav ul, nav ol, header ul { list-style: none; margin: 0; padding: 0; }
+nav ul, nav ol, header ul, #locales ul{ list-style: none; margin: 0; padding: 0; }
 
 
 /* =============================================================================
@@ -209,7 +209,7 @@ table { border-collapse: collapse; border-spacing: 0; }
 
    ========================================================================== */ 
 $content-background = #F5F5F5
-$footer-background = #AF615F
+$footer-background = #267E33
  
 label
   width 200px
@@ -219,13 +219,13 @@ div
   
 html,
 body
-  background-color #D6FBBD
+  background-color #67AF6E
   margin 0
   padding 0
   height 100%
   
 #wrapper
-  width 920px
+  width 920px  
   margin auto
   min-height 100%
   position relative
@@ -248,7 +248,7 @@ header
   line-height $header-height
   h1
     a
-      font-family: 'Unkempt', cursive;
+      font-family 'Unkempt', cursive;
       font-size $header-height * 0.9
       text-decoration none
       color $header-color
@@ -259,19 +259,19 @@ header
     margin 4px 0 0;
     padding 0
     line-height $header-height
-  div
+  nav
     float right
+    text-align right
     color #999
     margin 4px 0
-    text-align right
     font-weight bold
     font-size 1.2em
     color #E1E1E1    
     .login-button, ul
       border-radius(9px)
-      padding 5px 15px 6px 
+      padding 6px 16px 
     .login-button
-      background #D04751
+      background #3325E1
       margin-left 9px
       display inline
       text-decoration none
@@ -280,7 +280,7 @@ header
       &:hover
         background-color #CC070E
     ul
-      background #4A994A
+      background $footer-background
       display inline
       li
         display inline
@@ -304,9 +304,10 @@ footer
   border-radius(9px)
   line-height @height
   text-align right
-  nav
+  ul
     float left
     padding-left 1em
+    margin 0
     height $footer-height - @margin-bottom
     font-weight bold    
     li
@@ -320,16 +321,23 @@ footer
     float right
     margin-right 2em
 
-#login-box
-  //display none
-  height 0
-  overflow hidden
-  transition(height, 0.3s, ease-out)
-
-.login #login-box
-  height 100px
-  //display block
-  
+#locales
+  padding 8px 24px
+  background #1A1D31
+  color #ECECEC
+  font-weight bold  
+  display block
+  text-align center
+  font-size 1.4em
+  border-radius(9px)
+  li
+    display inline
+    margin 0 10px   
+    a
+      text-decoration none
+      &:hover
+        color #99434A
+    
 #post-content
   margin 0
   padding 0
@@ -465,10 +473,43 @@ ul#post-content
   &:hover
     background-color #db0d5f
 
+$button-delete-size = 20px
+.button-delete
+  width $button-delete-size
+  height $button-delete-size
+  cursor pointer
+  //top (@height / -4 )
+  //right (@width / -4 )
+  background url('/images/destroy.png') no-repeat 0 0
+  &:hover
+    background-position 0 (@width * -1)    
+  
+.modal-background
+  background black
+  opacity(0.5)
+  position fixed
+  top 0
+  left 0
+  right 0
+  bottom 0
+  z-index 10000
 
-
-
-
+$modal-content-width = 560px
+.modal-content
+  background #E1E1E1
+  position fixed
+  z-index 10001
+  top 100px
+  left 50%
+  padding 20px
+  width $modal-content-width - @padding * 2
+  border-radius(6px)    
+  margin-left -($modal-content-width/2)
+  .button-delete
+    position absolute
+    top ($button-delete-size / -2)
+    right ($button-delete-size / -2)
+    
 
 
 /* =============================================================================
@@ -506,16 +547,6 @@ ul#post-content
    These override the primary ('mobile first') styles
    Modify as content requires.
    ========================================================================== */
-
-@media only screen and (min-width: 480px) {
-  /* Style adjustments for viewports 480px and over go here */
-
-}
-
-@media only screen and (min-width: 768px) {
-  /* Style adjustments for viewports 768px and over go here */
-
-}
 
 
 /* =============================================================================
